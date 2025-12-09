@@ -4,9 +4,9 @@ import 'package:fwaid_app/modles/fwaid.dart';
 
 class FwaidTile extends StatelessWidget {
   final Fwaid dua;
-   final VoidCallback onTap;
-   final VoidCallback onFavoriteToggle;
-   final bool isFavorite;
+  final VoidCallback onTap;
+  final VoidCallback onFavoriteToggle;
+  final bool isFavorite;
   final double fontSize;
 
   const FwaidTile({
@@ -58,18 +58,14 @@ class FwaidTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: onFavoriteToggle,
                     icon: Icon(
-                      Icons.favorite_border,
-                      //           isFavorite ? Icons.favorite : Icons.favorite_border,
-                      //          color: isFavorite
-                      //              ? const Color.fromARGB(255, 55, 52, 52)
-                      //              : Colors.teal,
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.grey,
                     ),
-                    //  onPressed: onFavoriteToggle,
-                    //   tooltip: isFavorite
-                    //      ? 'إزالة من المفضلة'
-                    //       : 'إضافة إلى المفضلة',
+                    tooltip: isFavorite
+                        ? 'إزالة من المفضلة'
+                        : 'إضافة إلى المفضلة',
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy, color: Colors.teal),
