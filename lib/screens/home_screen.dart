@@ -42,12 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {});
   }
 
-  void toggleFavorite(String title) {
+  void toggleFavorite(String id) {
     setState(() {
-      if (favorites.contains(title)) {
-        favorites.remove(title);
+      if (favorites.contains(id)) {
+        favorites.remove(id);
       } else {
-        favorites.add(title);
+        favorites.add(id);
       }
     });
     FavoritesManager.saveFavorites(favorites);
@@ -69,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
         context: context,
         fontSize: widget.fontSize,
         favorites: favorites,
+        onFavoritesUpdated: loadFavorites, // ✅ هنا الحل
       ),
 
       endDrawer: SettingsDrawer(
@@ -108,8 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 return FwaidTile(
                   dua: dua,
                   fontSize: widget.fontSize,
-                  isFavorite: favorites.contains(dua.name),
-                  onFavoriteToggle: () => toggleFavorite(dua.name),
+                  isFavorite: favorites.contains(dua.id),
+                  onFavoriteToggle: () => toggleFavorite(dua.id),
                   onTap: () {
                     Navigator.push(
                       context,

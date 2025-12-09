@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoritesManager {
-  static const String key = 'favorites';
+  static const String key = 'favorites_ids';
 
   static Future<List<String>> loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();

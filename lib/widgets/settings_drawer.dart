@@ -40,7 +40,7 @@ class SettingsDrawer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => FavoritesScreen(
                     fontSize: fontSize,
-                    favoriteTitles: favorites,
+                    favoriteIds: favorites,
                   ),
                 ),
               );

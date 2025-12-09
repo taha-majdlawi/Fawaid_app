@@ -5,6 +5,7 @@ AppBar buildHomeAppBar({
   required BuildContext context,
   required double fontSize,
   required List<String> favorites,
+  required VoidCallback onFavoritesUpdated,
 }) {
   return AppBar(
     automaticallyImplyLeading: false,
@@ -13,23 +14,24 @@ AppBar buildHomeAppBar({
       style: TextStyle(fontFamily: 'Amiri'),
     ),
     centerTitle: true,
-
     actions: [
       IconButton(
         icon: const Icon(Icons.favorite_border),
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => FavoritesScreen(
                 fontSize: fontSize,
-                favoriteTitles: favorites,
+                favoriteIds: favorites,
               ),
             ),
           );
+
+          // ✅ رجع نادِ HomeScreen
+          onFavoritesUpdated();
         },
       ),
-
       Builder(
         builder: (context) => IconButton(
           icon: const Icon(Icons.menu),
