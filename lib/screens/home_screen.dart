@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontFamily: 'Amiri'),
               ),
               trailing: const Icon(Icons.favorite),
-              onTap: () {
+              onTap: ()  {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
