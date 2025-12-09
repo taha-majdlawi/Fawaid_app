@@ -21,7 +21,7 @@ class FwaidTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      //  onTap: onTap,
+     onTap: onTap,
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

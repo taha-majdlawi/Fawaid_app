@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fwaid_app/data/fwaid_data.dart';
+import 'package:fwaid_app/screens/fwaid_detail_screen.dart';
 import 'package:fwaid_app/services/favorites_manager.dart';
 import 'package:fwaid_app/widgets/home_app_bar.dart';
 import 'package:fwaid_app/widgets/settings_drawer.dart';
@@ -26,11 +27,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<String> favorites = [];
+  String searchQuery = "";
+  List filteredList = [];
 
   @override
   void initState() {
     super.initState();
     loadFavorites();
+    filteredList = fwaidData;
   }
 
   Future<void> loadFavorites() async {
@@ -47,6 +51,15 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
     FavoritesManager.saveFavorites(favorites);
+  }
+
+  void updateSearch(String value) {
+    setState(() {
+      searchQuery = value;
+      filteredList = fwaidData.where((item) {
+        return item.name.contains(value) || item.text.contains(value);
+      }).toList();
+    });
   }
 
   @override
@@ -67,18 +80,55 @@ class _HomeScreenState extends State<HomeScreen> {
         onContactDeveloper: _launchWhatsApp,
       ),
 
-      body: ListView.builder(
-        itemCount: fwaidData.length,
-        itemBuilder: (context, index) {
-          final dua = fwaidData[index];
-          return FwaidTile(
-            dua: dua,
-            fontSize: widget.fontSize,
-            isFavorite: favorites.contains(dua.name),
-            onFavoriteToggle: () => toggleFavorite(dua.name),
-            onTap: () {},
-          );
-        },
+      body: Column(
+        children: [
+          // 🔍 صندوق البحث
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              textDirection: TextDirection.rtl,
+              decoration: InputDecoration(
+                hintText: "ابحث عن فائدة...",
+                hintTextDirection: TextDirection.rtl,
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onChanged: updateSearch,
+            ),
+          ),
+
+          // 📋 قائمة الأدعية (مفلترة حسب البحث)
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredList.length,
+              itemBuilder: (context, index) {
+                final dua = filteredList[index];
+                return FwaidTile(
+                  dua: dua,
+                  fontSize: widget.fontSize,
+                  isFavorite: favorites.contains(dua.name),
+                  onFavoriteToggle: () => toggleFavorite(dua.name),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FwaidDetailScreen(
+                          title: dua.name,
+                          text: dua.text,
+                          fontSize: widget.fontSize,
+                          isFavorite: favorites.contains(dua.name),
+                          onFavoriteToggle: () => toggleFavorite(dua.name),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
