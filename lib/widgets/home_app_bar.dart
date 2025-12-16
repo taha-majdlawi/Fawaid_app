@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fwaid_app/screens/favorites_screen.dart';
+import 'package:fwaid_app/screens/vedio_list_screen.dart';
 
 AppBar buildHomeAppBar({
   required BuildContext context,
@@ -15,6 +16,7 @@ AppBar buildHomeAppBar({
     ),
     centerTitle: true,
     actions: [
+      // زر الانتقال إلى شاشة المفضلة
       IconButton(
         icon: const Icon(Icons.favorite_border),
         onPressed: () async {
@@ -27,11 +29,25 @@ AppBar buildHomeAppBar({
               ),
             ),
           );
-
-          // ✅ رجع نادِ HomeScreen
-          onFavoritesUpdated();
+          onFavoritesUpdated(); // استدعاء عند العودة
         },
       ),
+
+      // ✅ زر الانتقال إلى شاشة الفيديوهات
+      IconButton(
+        icon: const Icon(Icons.video_library),
+        tooltip: 'قائمة الفيديوهات',
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>  VideoListScreen(),
+            ),
+          );
+        },
+      ),
+
+      // زر فتح القائمة الجانبية
       Builder(
         builder: (context) => IconButton(
           icon: const Icon(Icons.menu),

@@ -1,4 +1,66 @@
 import 'package:fwaid_app/modles/fwaid.dart';
+final List<Map<String, String>> playlistVideos = [
+  {
+    "id": "1",
+    "title": "الفوائد 1 من بداية الكتاب حتى صفحة 27",
+    "url": "https://www.youtube.com/watch?v=7XQ6T6QNpz8"
+  },
+  {
+    "id": "2",
+    "title": "الفوائد 2 من قوله فائدة الرب تعالى يدعو عباده في القرآن إلى معرفته من طريقين صفحة 27 حتى ص",
+    "url": "https://www.youtube.com/watch?v=eIl7pytHpyQ"
+  },
+  {
+    "id": "3",
+    "title": "الفوائد 3 من قوله فصل نجائب النجاة مهيأة للمراد صفحة 52 حتى صفحة 83",
+    "url": "https://www.youtube.com/watch?v=syNLBMXSppE"
+  },
+  {
+    "id": "4",
+    "title": "الفوائد 4 من قوله فصل ألفى الله سبحانه العداوة بين الشيطان وبين الملك صفحة 83 حتى صفحة 113",
+    "url": "https://www.youtube.com/watch?v=qo6HHmYAH98"
+  },
+  {
+    "id": "5",
+    "title": "الفوائد 5 من قوله فصل علمت كلبك فهو يترك شهوته صفحة 113 حتى صفحة 140",
+    "url": "https://www.youtube.com/watch?v=RiZ5f7scbhs"
+  },
+  {
+    "id": "6",
+    "title": "الفوائد 6 من قوله قاعدة أساس كل خير أن تعلم أن ما شاء كان صفحة 4 حتى صفحة 165",
+    "url": "https://www.youtube.com/watch?v=Dlw6KmXrd88"
+  },
+  {
+    "id": "7",
+    "title": "الفوائد 7 من قوله فصل من ترك الاختيار والتدبير صفحة 165 حتى صفحة 188",
+    "url": "https://www.youtube.com/watch?v=I49Xe0_WynA"
+  },
+  {
+    "id": "8",
+    "title": "الفوائد 8 من قوله فصل تكرر في القرآن جعل الأعمال صفحة 188 حتى صفحة 211",
+    "url": "https://www.youtube.com/watch?v=rS0z_RkacdM"
+  },
+  {
+    "id": "9",
+    "title": "الفوائد 9 من قوله فصل من كلام عبدالله بن مسعود صفحة 211 حتى صفحة 232",
+    "url": "https://www.youtube.com/watch?v=lXKbFLYXcR4"
+  },
+  {
+    "id": "10",
+    "title": "الفوائد 10 من قوله فصل الجهال بأسماء الله وصفاته صفحة 233 حتى صفحة 255",
+    "url": "https://www.youtube.com/watch?v=ua8G0IpuiZM"
+  },
+  {
+    "id": "11",
+    "title": "الفوائد 11 من قوله فصل فإذا دفعت الخاطر الوارد عليك صفحة 255 حتى صفحة 276",
+    "url": "https://www.youtube.com/watch?v=jj_mqTNOwU4"
+  },
+  {
+    "id": "12",
+    "title": "الفوائد 12 من قوله فائدة الناس منذ خلقوا لم يزالوا مسافرين صفحة 276 حتى نهاية الكتاب",
+    "url": "https://www.youtube.com/watch?v=cjVUDYx4Av8"
+  }
+];
 
 List<Fwaid> fwaidData = [
   Fwaid(
