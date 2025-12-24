@@ -13,3 +13,16 @@ class FavoritesManager {
     await prefs.setStringList(key, list);
   }
 }
+class LastOpenedManager {
+  static const String key = 'last_opened_fwaid_id';
+
+  static Future<void> saveLastOpened(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, id);
+  }
+
+  static Future<String?> loadLastOpened() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
+  }
+}

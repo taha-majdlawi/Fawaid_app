@@ -6,6 +6,7 @@ import 'package:fwaid_app/widgets/home_app_bar.dart';
 import 'package:fwaid_app/widgets/settings_drawer.dart';
 import 'package:fwaid_app/widgets/fwaid_tile_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final double fontSize;
@@ -27,49 +28,110 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<String> favorites = [];
-  String searchQuery = "";
   List filteredList = [];
+
+  // 🔑 مفاتيح SharedPreferences
+  static const String _lastOpenedKey = 'last_opened_fwaid_id';
+  static const String _showContinueKey = 'show_continue_reading';
+
+  String? lastOpenedId;
+  dynamic lastOpenedItem;
+  bool showContinueReading = true;
 
   @override
   void initState() {
     super.initState();
     loadFavorites();
-    filteredList = fwaidData;
+    filteredList = List.from(fwaidData);
+    loadSettings();
   }
 
   Future<void> loadFavorites() async {
     favorites = await FavoritesManager.loadFavorites();
-    setState(() {});
+    if (mounted) setState(() {});
+  }
+
+  Future<void> loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    showContinueReading = prefs.getBool(_showContinueKey) ?? true;
+    await loadLastOpened();
+  }
+
+  Future<void> loadLastOpened() async {
+    final prefs = await SharedPreferences.getInstance();
+    lastOpenedId = prefs.getString(_lastOpenedKey);
+
+    if (lastOpenedId != null && showContinueReading) {
+      try {
+        lastOpenedItem =
+            fwaidData.firstWhere((item) => item.id == lastOpenedId);
+      } catch (_) {
+        lastOpenedItem = null;
+      }
+    } else {
+      lastOpenedItem = null;
+    }
+
+    if (mounted) setState(() {});
+  }
+
+  Future<void> saveLastOpened(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastOpenedKey, id);
   }
 
   void toggleFavorite(String id) {
     setState(() {
-      if (favorites.contains(id)) {
-        favorites.remove(id);
-      } else {
-        favorites.add(id);
-      }
+      favorites.contains(id)
+          ? favorites.remove(id)
+          : favorites.add(id);
     });
     FavoritesManager.saveFavorites(favorites);
   }
 
   void updateSearch(String value) {
     setState(() {
-      searchQuery = value;
       filteredList = fwaidData.where((item) {
         return item.name.contains(value) || item.text.contains(value);
       }).toList();
     });
   }
 
+  Future<void> openDetail(dynamic item) async {
+    await saveLastOpened(item.id);
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FwaidDetailScreen(
+          title: item.name,
+          text: item.text,
+          fontSize: widget.fontSize,
+          isFavorite: favorites.contains(item.id),
+          onFavoriteToggle: () => toggleFavorite(item.id),
+        ),
+      ),
+    );
+
+    await loadFavorites();
+    await loadLastOpened();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cardBg =
+        widget.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
+    final cardBorder =
+        widget.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300;
+    final subtitleColor =
+        widget.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700;
+
     return Scaffold(
       appBar: buildHomeAppBar(
         context: context,
         fontSize: widget.fontSize,
         favorites: favorites,
-        onFavoritesUpdated: loadFavorites, // ✅ هنا الحل
+        onFavoritesUpdated: loadFavorites,
       ),
 
       endDrawer: SettingsDrawer(
@@ -79,18 +141,86 @@ class _HomeScreenState extends State<HomeScreen> {
         onFontSizeChanged: widget.onFontSizeChanged,
         onThemeChanged: widget.onThemeChanged,
         onContactDeveloper: _launchWhatsApp,
+
+        // 🔘 سويتش متابعة القراءة
+        showContinueReading: showContinueReading,
+        onContinueReadingChanged: (value) async {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool(_showContinueKey, value);
+
+          setState(() {
+            showContinueReading = value;
+            if (!value) {
+              lastOpenedItem = null;
+            } else {
+              loadLastOpened();
+            }
+          });
+        },
       ),
 
       body: Column(
         children: [
-          // 🔍 صندوق البحث
+          // 📖 كارد متابعة القراءة
+          if (showContinueReading && lastOpenedItem != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+              child: InkWell(
+                onTap: () => openDetail(lastOpenedItem),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: cardBg,
+                    border: Border.all(color: cardBorder),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.bookmark_outline,
+                        color: Colors.teal.shade600,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "متابعة القراءة",
+                              style: TextStyle(
+                                fontFamily: 'Amiri',
+                                fontSize: widget.fontSize - 1,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              lastOpenedItem.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Amiri',
+                                fontSize: widget.fontSize - 3,
+                                color: subtitleColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_left, color: subtitleColor),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          // 🔍 البحث
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(12),
             child: TextField(
               textDirection: TextDirection.rtl,
               decoration: InputDecoration(
                 hintText: "ابحث عن فائدة...",
-                hintTextDirection: TextDirection.rtl,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -100,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 📋 قائمة الأدعية (مفلترة حسب البحث)
+          // 📋 قائمة الفوائد
           Expanded(
             child: ListView.builder(
               itemCount: filteredList.length,
@@ -111,20 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: widget.fontSize,
                   isFavorite: favorites.contains(dua.id),
                   onFavoriteToggle: () => toggleFavorite(dua.id),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FwaidDetailScreen(
-                          title: dua.name,
-                          text: dua.text,
-                          fontSize: widget.fontSize,
-                          isFavorite: favorites.contains(dua.name),
-                          onFavoriteToggle: () => toggleFavorite(dua.name),
-                        ),
-                      ),
-                    );
-                  },
+                  onTap: () => openDetail(dua),
                 );
               },
             ),

@@ -9,6 +9,10 @@ class SettingsDrawer extends StatelessWidget {
   final ValueChanged<bool> onThemeChanged;
   final VoidCallback onContactDeveloper;
 
+  // ✅ جديد: سويتش متابعة القراءة + callback
+  final bool showContinueReading;
+  final ValueChanged<bool> onContinueReadingChanged;
+
   const SettingsDrawer({
     super.key,
     required this.fontSize,
@@ -17,6 +21,8 @@ class SettingsDrawer extends StatelessWidget {
     required this.onFontSizeChanged,
     required this.onThemeChanged,
     required this.onContactDeveloper,
+    required this.showContinueReading,
+    required this.onContinueReadingChanged,
   });
 
   @override
@@ -25,8 +31,11 @@ class SettingsDrawer extends StatelessWidget {
       child: ListView(
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(color: Color.fromARGB(255, 132, 218, 209)),
-            child: Text('الإعدادات',
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 132, 218, 209),
+            ),
+            child: Text(
+              'الإعدادات',
               style: TextStyle(fontSize: 24, fontFamily: 'Amiri'),
             ),
           ),
@@ -50,7 +59,10 @@ class SettingsDrawer extends StatelessWidget {
           const Divider(),
 
           ListTile(
-            title: const Text('حجم الخط', style: TextStyle(fontFamily: 'Amiri')),
+            title: const Text(
+              'حجم الخط',
+              style: TextStyle(fontFamily: 'Amiri'),
+            ),
             subtitle: Slider(
               value: fontSize,
               min: 12,
@@ -62,15 +74,40 @@ class SettingsDrawer extends StatelessWidget {
           ),
 
           SwitchListTile(
-            title: const Text("الوضع الليلي", style: TextStyle(fontFamily: 'Amiri')),
+            title: const Text(
+              "الوضع الليلي",
+              style: TextStyle(fontFamily: 'Amiri'),
+            ),
             value: isDarkMode,
             onChanged: onThemeChanged,
+          ),
+
+          // ✅ سويتش متابعة القراءة (بديل زر الإخفاء القديم)
+          SwitchListTile(
+            title: const Text(
+              "متابعة القراءة",
+              style: TextStyle(fontFamily: 'Amiri'),
+            ),
+            subtitle: const Text(
+              "إظهار آخر فائدة تمت قراءتها في الصفحة الرئيسية",
+              style: TextStyle(fontFamily: 'Amiri', fontSize: 12),
+            ),
+            value: showContinueReading,
+            onChanged: (value) {
+              onContinueReadingChanged(value);
+
+              // اختياري: أغلق الدرج بعد التبديل مثل باقي الإعدادات
+              Navigator.pop(context);
+            },
           ),
 
           const Divider(),
 
           ListTile(
-            title: const Text('تواصل مع المطور', style: TextStyle(fontFamily: 'Amiri')),
+            title: const Text(
+              'تواصل مع المطور',
+              style: TextStyle(fontFamily: 'Amiri'),
+            ),
             trailing: const Icon(Icons.chat),
             onTap: onContactDeveloper,
           ),
