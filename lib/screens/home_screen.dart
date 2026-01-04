@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fwaid_app/data/fwaid_data.dart';
 import 'package:fwaid_app/screens/fwaid_detail_screen.dart';
 import 'package:fwaid_app/services/favorites_manager.dart';
+import 'package:fwaid_app/utiles/fwaid_helpers.dart';
 import 'package:fwaid_app/widgets/home_app_bar.dart';
 import 'package:fwaid_app/widgets/settings_drawer.dart';
 import 'package:fwaid_app/widgets/fwaid_tile_widget.dart';
@@ -30,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> favorites = [];
   List filteredList = [];
 
-  // 🔑 مفاتيح SharedPreferences
+  // مفاتيح SharedPreferences
   static const String _lastOpenedKey = 'last_opened_fwaid_id';
   static const String _showContinueKey = 'show_continue_reading';
 
@@ -41,8 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadFavorites();
     filteredList = List.from(fwaidData);
+    loadFavorites();
     loadSettings();
   }
 
@@ -63,9 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (lastOpenedId != null && showContinueReading) {
       try {
-        lastOpenedItem = fwaidData.firstWhere(
-          (item) => item.id == lastOpenedId,
-        );
+        lastOpenedItem =
+            fwaidData.firstWhere((item) => item.id == lastOpenedId);
       } catch (_) {
         lastOpenedItem = null;
       }
@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => FwaidDetailScreen(
-          id: item.id, // ❗ مهم
+          id: item.id,
           title: item.name,
           text: item.text,
           fontSize: widget.fontSize,
@@ -119,15 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cardBg = widget.isDarkMode
-        ? Colors.grey.shade900
-        : Colors.grey.shade100;
-    final cardBorder = widget.isDarkMode
-        ? Colors.grey.shade800
-        : Colors.grey.shade300;
-    final subtitleColor = widget.isDarkMode
-        ? Colors.grey.shade400
-        : Colors.grey.shade700;
+    final dailyFwaid = getDailyFwaid(fwaidData);
+
+    final cardBg =
+        widget.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
+    final cardBorder =
+        widget.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300;
+    final subtitleColor =
+        widget.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700;
 
     return Scaffold(
       appBar: buildHomeAppBar(
@@ -144,8 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onFontSizeChanged: widget.onFontSizeChanged,
         onThemeChanged: widget.onThemeChanged,
         onContactDeveloper: _launchWhatsApp,
-
-        // 🔘 سويتش متابعة القراءة
         showContinueReading: showContinueReading,
         onContinueReadingChanged: (value) async {
           final prefs = await SharedPreferences.getInstance();
@@ -162,81 +159,111 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
 
-      body: Column(
-        children: [
-          // 📖 كارد متابعة القراءة
+      // ✅ هنا التعديل الأساسي (Slivers)
+      body: CustomScrollView(
+        slivers: [
+
+          // 📖 متابعة القراءة
           if (showContinueReading && lastOpenedItem != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-              child: InkWell(
-                onTap: () => openDetail(lastOpenedItem),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: cardBg,
-                    border: Border.all(color: cardBorder),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.bookmark_outline, color: Colors.teal.shade600),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "متابعة القراءة",
-                              style: TextStyle(
-                                fontFamily: 'Amiri',
-                                fontSize: widget.fontSize - 1,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              lastOpenedItem.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: 'Amiri',
-                                fontSize: widget.fontSize - 3,
-                                color: subtitleColor,
-                              ),
-                            ),
-                          ],
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                child: InkWell(
+                  onTap: () => openDetail(lastOpenedItem),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: cardBg,
+                      border: Border.all(color: cardBorder),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.bookmark_outline,
+                          color: Colors.teal.shade600,
                         ),
-                      ),
-                      Icon(Icons.chevron_left, color: subtitleColor),
-                    ],
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "متابعة القراءة",
+                                style: TextStyle(
+                                  fontFamily: 'Amiri',
+                                  fontSize: widget.fontSize - 1,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                lastOpenedItem.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Amiri',
+                                  fontSize: widget.fontSize - 3,
+                                  color: subtitleColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.chevron_left, color: subtitleColor),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
 
-          // 🔍 البحث
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              textDirection: TextDirection.rtl,
-              decoration: InputDecoration(
-                hintText: "ابحث عن فائدة...",
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+          // 📅 فائدة اليوم
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+              child: Card(
+                child: ListTile(
+                  title: const Text(
+                    'فائدة اليوم',
+                    style: TextStyle(fontFamily: 'Amiri'),
+                  ),
+                  subtitle: Text(
+                    dailyFwaid.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: const Icon(Icons.today),
+                  onTap: () => openDetail(dailyFwaid),
                 ),
               ),
-              onChanged: updateSearch,
+            ),
+          ),
+
+          // 🔍 البحث
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: TextField(
+                textDirection: TextDirection.rtl,
+                decoration: InputDecoration(
+                  hintText: "ابحث عن فائدة...",
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onChanged: updateSearch,
+              ),
             ),
           ),
 
           // 📋 قائمة الفوائد
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredList.length,
-              itemBuilder: (context, index) {
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
                 final dua = filteredList[index];
                 return FwaidTile(
                   dua: dua,
@@ -246,6 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => openDetail(dua),
                 );
               },
+              childCount: filteredList.length,
             ),
           ),
         ],
