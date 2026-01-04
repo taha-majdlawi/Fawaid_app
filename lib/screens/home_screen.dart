@@ -63,8 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (lastOpenedId != null && showContinueReading) {
       try {
-        lastOpenedItem =
-            fwaidData.firstWhere((item) => item.id == lastOpenedId);
+        lastOpenedItem = fwaidData.firstWhere(
+          (item) => item.id == lastOpenedId,
+        );
       } catch (_) {
         lastOpenedItem = null;
       }
@@ -82,9 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void toggleFavorite(String id) {
     setState(() {
-      favorites.contains(id)
-          ? favorites.remove(id)
-          : favorites.add(id);
+      favorites.contains(id) ? favorites.remove(id) : favorites.add(id);
     });
     FavoritesManager.saveFavorites(favorites);
   }
@@ -104,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => FwaidDetailScreen(
+          id: item.id, // ❗ مهم
           title: item.name,
           text: item.text,
           fontSize: widget.fontSize,
@@ -119,12 +119,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cardBg =
-        widget.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
-    final cardBorder =
-        widget.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300;
-    final subtitleColor =
-        widget.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700;
+    final cardBg = widget.isDarkMode
+        ? Colors.grey.shade900
+        : Colors.grey.shade100;
+    final cardBorder = widget.isDarkMode
+        ? Colors.grey.shade800
+        : Colors.grey.shade300;
+    final subtitleColor = widget.isDarkMode
+        ? Colors.grey.shade400
+        : Colors.grey.shade700;
 
     return Scaffold(
       appBar: buildHomeAppBar(
@@ -173,14 +176,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: cardBg,
                     border: Border.all(color: cardBorder),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.bookmark_outline,
-                        color: Colors.teal.shade600,
-                      ),
+                      Icon(Icons.bookmark_outline, color: Colors.teal.shade600),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
